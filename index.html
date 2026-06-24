@@ -2394,7 +2394,7 @@ function aplicarPermisos(){
     const sec=Object.keys(navMap).find(k=>navMap[k]===i);if(!sec)return;
     if(sec==='nueva-paciente'){btn.style.display=esAdmin||permisosActivo.includes('pacientes')?'':'none';return;}
     if(esAdmin){btn.style.display='';return;}
-    if(sec==='pagos'){btn.style.display='';return;}
+    if(sec==='pagos'||sec==='precios'||sec==='precios2025'||sec==='precios2027'){btn.style.display='';return;}
     btn.style.display=permisosActivo.includes(sec)?'':'none';
   });
   const adminBtn=document.getElementById('nav-admin');if(adminBtn)adminBtn.style.display=esAdmin?'':'none';
