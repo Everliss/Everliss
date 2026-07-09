@@ -306,6 +306,7 @@ tr:last-child td{border-bottom:none}
       <option value="byebyeporos">Bye Bye poros</option>
       <option value="danosolar">Daño solar</option>
       <option value="rosacea">Rosácea facial</option>
+      <option value="combos">Combos 50%</option>
       <option value="pigmentaciones">Pigmentaciones</option>
     </select>
     <div id="bloque-zona-trat" class="hidden">
@@ -906,6 +907,13 @@ const CATALOGO={
   byebyeporos:{label:"Bye Bye poros",sesiones_paquete:8,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7680}]},
   danosolar:{label:"Daño solar / Fotodaño",sesiones_paquete:8,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1100,paquete:7040}]},
   rosacea:{label:"Rosácea facial",sesiones_paquete:8,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7680}]},
+  combos:{label:"Combos 50%",sesiones_paquete:6,periodo:"1 sesión cada 30-45 días",zonas:[
+    {zona:"Medios brazos + Medias piernas",sesion:10740,paquete:10740},
+    {zona:"Glúteos + Bikini brasileño",sesion:10320,paquete:10320},
+    {zona:"Bigote + Axilas + Bikini",sesion:7830,paquete:7830},
+    {zona:"Piernas completas + Axilas",sesion:15870,paquete:15870},
+    {zona:"Medias piernas + Axilas",sesion:9390,paquete:9390}
+  ]},
   pigmentaciones:{label:"Pigmentaciones",periodo:"1 sesión cada mes (máx. 3 sesiones)",zonas:[{zona:"Facial — 5 disparos",sesion:600,disparos:5},{zona:"Facial — 10 disparos",sesion:1100,disparos:10},{zona:"Facial — 15 disparos",sesion:1600,disparos:15},{zona:"Facial — 20 disparos",sesion:2100,disparos:20}]}
 };
 // PRECIOS DEPILACIÓN CORREGIDOS: sesion = precio con +5%, paquete = lista 6 ses, d20 = sesion con 20% dto, d30/d40/d50/d60/d70 = paquete con descuento
@@ -923,6 +931,13 @@ const CATALOGO_2025={
   byebyeporos:{label:"Bye Bye poros",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:6480}]},
   danosolar:{label:"Daño solar / Fotodaño",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1100,paquete:null}]},
   rosacea:{label:"Rosácea facial",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:6480}]},
+  combos:{label:"Combos 50%",sesiones_paquete:6,periodo:"1 sesión cada 30-45 días",zonas:[
+    {zona:"Medios brazos + Medias piernas",sesion:10740,paquete:10740},
+    {zona:"Glúteos + Bikini brasileño",sesion:10320,paquete:10320},
+    {zona:"Bigote + Axilas + Bikini",sesion:7830,paquete:7830},
+    {zona:"Piernas completas + Axilas",sesion:15870,paquete:15870},
+    {zona:"Medias piernas + Axilas",sesion:9390,paquete:9390}
+  ]},
   pigmentaciones:{label:"Pigmentaciones",periodo:"1 sesión cada mes (máx. 3 sesiones)",zonas:[{zona:"Facial — 5 disparos",sesion:600,disparos:5},{zona:"Facial — 10 disparos",sesion:1100,disparos:10},{zona:"Facial — 15 disparos",sesion:1600,disparos:15},{zona:"Facial — 20 disparos",sesion:2100,disparos:20}]}
 };
 
@@ -1401,6 +1416,7 @@ function renderServiciosCita(){
       if(srv.cat==='depilacion')tipoPrecioHtml=buildSrvDepilHtml(srv);
       else if(['tricostatis','danosolar','pigmentaciones'].includes(srv.cat))tipoPrecioHtml='';
       else if(srv.cat==='vascular')tipoPrecioHtml=buildSrvTipoHtml(srv,4);
+      else if(srv.cat==='combos')tipoPrecioHtml=buildSrvTipoHtml(srv,6);
       else if(CATALOGO[srv.cat]&&CATALOGO[srv.cat].sesiones_paquete)tipoPrecioHtml=buildSrvTipoHtml(srv,CATALOGO[srv.cat].sesiones_paquete);
     }
     const precioLabel=srv.precio>0?`<div class="precio-box" style="display:flex;justify-content:space-between;margin-top:8px"><span class="text-muted" style="font-size:12px">Precio de este servicio</span><span style="font-weight:600;color:#f7931e">${fmt(srv.precio)}</span></div>`:'';
@@ -1536,9 +1552,15 @@ function calcSrvPrecio(srv){
     const z=CATALOGO.vascular.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     if(srv.tipo==='paquete'&&z.paquete){srv.precio=z.paquete;srv.sesiones=4;}else{srv.precio=z.sesion;srv.sesiones=1;}
     srv.periodo=CATALOGO.vascular.periodo;
+  }else if(srv.cat==='combos'){
+    const z=CATALOGO.combos.zonas.find(x=>x.zona===srv.zona);if(!z)return;
+    srv.precio=z.paquete;srv.sesiones=6;srv.tipo='paquete';srv.periodo=CATALOGO.combos.periodo;
   }else if(srv.cat==='pigmentaciones'){
     const z=CATALOGO.pigmentaciones.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     srv.precio=z.sesion;srv.sesiones=1;srv.periodo=CATALOGO.pigmentaciones.periodo;
+  }else if(srv.cat==='combos'){
+    const z=CATALOGO.combos.zonas.find(x=>x.zona===srv.zona);if(!z)return;
+    srv.precio=z.paquete;srv.sesiones=6;srv.tipo='paquete';srv.periodo=CATALOGO.combos.periodo;
   }else if(CATALOGO[srv.cat]&&CATALOGO[srv.cat].zonas){
     const c=CATALOGO[srv.cat];const z=c.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     if(srv.tipo==='paquete'&&z.paquete){srv.precio=z.paquete;srv.sesiones=c.sesiones_paquete||6;}else{srv.precio=z.sesion;srv.sesiones=1;}
@@ -2075,6 +2097,10 @@ function guardarTrat(){
   }else if(cat==='danosolar'){
     zona='Facial';sesiones=parseInt(document.getElementById('nt-ses-danosolar').value)||1;
     precio=1100*sesiones;tipo='sesion';periodo=CATALOGO.danosolar.periodo;
+  }else if(cat==='combos'){
+    zona=document.getElementById('nt-zona').value;if(!zona){alert('Selecciona el combo.');return;}
+    const zc=CATALOGO.combos.zonas.find(x=>x.zona===zona);
+    precio=zc?zc.paquete:0;sesiones=6;tipo='paquete';periodo=CATALOGO.combos.periodo;
   }else if(cat==='pigmentaciones'){
     const disp=document.getElementById('nt-disparos').value;if(!disp){alert('Selecciona disparos.');return;}
     const z=CATALOGO.pigmentaciones.zonas.find(x=>x.disparos===parseInt(disp));
