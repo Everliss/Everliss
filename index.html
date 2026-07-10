@@ -1471,17 +1471,21 @@ function buildSrvDepilHtml(srv){
 }
 function buildSrvTipoHtml(srv,spaq){
   const ts=srv.tipo||'paquete';
-  const extraSrv=srv.sesionesExtra||0;
-  return`<label>Tipo</label><div style="display:flex;gap:6px;margin-top:4px">
-    <button class="btn btn-sm ${ts==='sesion'?'btn-primary':''}" onclick="onSrvTipoChange('${srv.id}','sesion')" style="flex:1">Por sesión</button>
-    <button class="btn btn-sm ${ts==='paquete'?'btn-primary':''}" onclick="onSrvTipoChange('${srv.id}','paquete')" style="flex:1">Paquete (${spaq} ses.)</button>
+  const sp=srv.sesionesExtra||0;
+  // Always show 3 options: sesion, paquete 6, paquete 8
+  const paq6sel=ts==='paquete'&&(srv.sesiones||6)===6;
+  const paq8sel=ts==='paquete'&&(srv.sesiones||6)===8;
+  return`<label>Tipo</label><div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+    <button class="btn btn-sm ${ts==='sesion'?'btn-primary':''}" onclick="onSrvTipoChangePaq('${srv.id}','sesion',0)" style="flex:1;min-width:80px">Por sesión</button>
+    <button class="btn btn-sm ${paq6sel?'btn-primary':''}" onclick="onSrvTipoChangePaq('${srv.id}','paquete',6)" style="flex:1;min-width:80px">Paquete 6 ses.</button>
+    <button class="btn btn-sm ${paq8sel?'btn-primary':''}" onclick="onSrvTipoChangePaq('${srv.id}','paquete',8)" style="flex:1;min-width:80px">Paquete 8 ses.</button>
   </div>
   ${ts==='paquete'?`<label>Sesiones extra gratis (opcional)</label>
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
     <button class="btn btn-sm" onclick="onSrvExtraChange('${srv.id}',-1)" type="button">−</button>
-    <span style="font-size:16px;font-weight:600;min-width:28px;text-align:center">${extraSrv}</span>
+    <span style="font-size:16px;font-weight:600;min-width:28px;text-align:center">${sp}</span>
     <button class="btn btn-sm" onclick="onSrvExtraChange('${srv.id}',1)" type="button">+</button>
-    <span style="font-size:12px;color:#0F6E56">${extraSrv>0?'Total: '+(spaq+extraSrv)+' sesiones':''}</span>
+    <span style="font-size:12px;color:#0F6E56">${sp>0?'Total: '+((srv.sesiones||6)+sp)+' sesiones':''}</span>
   </div>`:''}`;
 }
 
@@ -1515,6 +1519,30 @@ function onSrvAnioChange(id,anio){
     if(srv.descuento>=40&&srv.tipo==='sesion')srv.descuento=0;
   }
   calcSrvPrecio(srv);recalcTotalCita();renderServiciosCita();
+}
+function onSrvTipoChangePaq(id,tipo,sesiones){
+  const srv=serviciosCita.find(s=>s.id===id);if(!srv)return;
+  srv.tipo=tipo;
+  if(sesiones>0)srv.sesiones=sesiones;
+  // Recalculate price based on sesiones
+  if(tipo==='sesion'){
+    calcSrvPrecio(srv);
+  }else{
+    // For paquete, calculate based on sesiones count
+    const cat=srv.cat;const zona=srv.zona;
+    if(cat&&zona&&CATALOGO[cat]){
+      const c=CATALOGO[cat];const z=c.zonas&&c.zonas.find(x=>x.zona===zona);
+      if(z){
+        if(sesiones===6){
+          const base6=z.sesion*6;srv.precio=Math.round(base6*0.9);srv.sesiones=6;
+        }else if(sesiones===8){
+          srv.precio=z.paquete&&z.paquete>0?z.paquete:Math.round(z.sesion*8*0.8);srv.sesiones=8;
+        }
+        srv.periodo=c.periodo;
+      }
+    }
+  }
+  recalcTotalCita();renderServiciosCita();
 }
 function onSrvTipoChange(id,tipo){
   const srv=serviciosCita.find(s=>s.id===id);if(!srv)return;
