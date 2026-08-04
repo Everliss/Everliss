@@ -1499,7 +1499,7 @@ function onSrvCatChange(id,cat){
   const srv=serviciosCita.find(s=>s.id===id);if(!srv)return;
   srv.cat=cat;srv.zona='';srv.tipo='paquete';srv.precio=0;srv.sesiones=1;srv.descuento=0;
   if(cat==='tricostatis'){srv.zona='Nariz';srv.precio=500;srv.sesiones=1;srv.tipo='sesion';srv.periodo=CATALOGO.tricostatis.periodo;}
-  else if(cat==='danosolar'){srv.zona='Facial';srv.precio=1100;srv.sesiones=1;srv.tipo='sesion';srv.periodo=CATALOGO.danosolar.periodo;}
+  // danosolar handled by generic zona selection
   recalcTotalCita();renderServiciosCita();
 }
 function onSrvZonaChange(id,zona){
@@ -1593,7 +1593,12 @@ function calcSrvPrecio(srv){
     srv.precio=z.paquete;srv.sesiones=6;srv.tipo='paquete';srv.periodo=CATALOGO.combos.periodo;
   }else if(CATALOGO[srv.cat]&&CATALOGO[srv.cat].zonas){
     const c=CATALOGO[srv.cat];const z=c.zonas.find(x=>x.zona===srv.zona);if(!z)return;
-    if(srv.tipo==='paquete'&&z.paquete){srv.precio=z.paquete;srv.sesiones=c.sesiones_paquete||6;}else{srv.precio=z.sesion;srv.sesiones=1;}
+    if(srv.tipo==='paquete'){
+      // Use explicit sesiones if set (6 or 8), otherwise default to catalog sesiones_paquete
+      const nSes=srv.sesiones&&srv.sesiones>1?srv.sesiones:(c.sesiones_paquete||8);
+      if(nSes===8&&z.paquete){srv.precio=z.paquete;srv.sesiones=8;}
+      else{srv.precio=Math.round(z.sesion*6*0.9);srv.sesiones=6;}
+    }else{srv.precio=z.sesion;srv.sesiones=1;}
     srv.periodo=c.periodo;
   }
 }
@@ -1973,7 +1978,13 @@ function onCatChange(){
     document.getElementById('bloque-depilacion').classList.remove('hidden');
     tipoTrat='paquete';descPct=0;setTipo('paquete');
   }else if(cat==='tricostatis'){document.getElementById('bloque-tricostatis').classList.remove('hidden');precioActual=500;sesionesActual=4;actualizarSaldoPreview2(2000);}
-  else if(cat==='danosolar'){document.getElementById('bloque-danosolar').classList.remove('hidden');precioActual=1100;sesionesActual=1;actualizarSaldoPreview2(1100);}
+  else if(cat==='danosolar'){
+    const c=CATALOGO.danosolar;
+    document.getElementById('nt-zona').innerHTML='<option value="">Seleccionar zona...</option>'+c.zonas.map(z=>`<option value="${z.zona}">${z.zona}</option>`).join('');
+    document.getElementById('bloque-zona-trat').classList.remove('hidden');
+    document.getElementById('bloque-tipo-generico').classList.remove('hidden');
+    genTipo='paq8';setGenTipo('paq8');
+  }
   else if(cat==='pigmentaciones'){document.getElementById('bloque-pigment').classList.remove('hidden');}
   else if(cat==='vascular'){
     document.getElementById('nt-zona').innerHTML='<option value="">Seleccionar zona...</option>'+CATALOGO.vascular.zonas.map(z=>`<option value="${z.zona}">${z.zona}</option>`).join('');
@@ -2125,8 +2136,12 @@ function guardarTrat(){
     zona='Nariz';sesiones=parseInt(document.getElementById('nt-ses-trico').value)||4;
     precio=500*sesiones;tipo='sesion';periodo=CATALOGO.tricostatis.periodo;
   }else if(cat==='danosolar'){
-    zona='Facial';sesiones=parseInt(document.getElementById('nt-ses-danosolar').value)||1;
-    precio=1100*sesiones;tipo='sesion';periodo=CATALOGO.danosolar.periodo;
+    zona=document.getElementById('nt-zona').value||'Facial';
+    const zdano=CATALOGO.danosolar.zonas.find(x=>x.zona===zona)||CATALOGO.danosolar.zonas[0];
+    if(genTipo==='paq8'&&zdano.paquete){precio=zdano.paquete;sesiones=8;tipo='paquete';}
+    else if(genTipo==='paq6'){precio=Math.round(zdano.sesion*6*0.9);sesiones=6;tipo='paquete';}
+    else{precio=zdano.sesion;sesiones=1;tipo='sesion';}
+    periodo=CATALOGO.danosolar.periodo;
   }else if(cat==='combos'){
     zona=document.getElementById('nt-zona').value;if(!zona){alert('Selecciona el combo.');return;}
     const zc=CATALOGO.combos.zonas.find(x=>x.zona===zona);
