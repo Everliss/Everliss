@@ -1416,7 +1416,7 @@ function renderServiciosCita(){
     let tipoPrecioHtml='';
     if(srv.esNuevo&&srv.zona&&srv.cat){
       if(srv.cat==='depilacion')tipoPrecioHtml=buildSrvDepilHtml(srv);
-      else if(['tricostatis','danosolar','pigmentaciones'].includes(srv.cat))tipoPrecioHtml='';
+      else if(['tricostatis','pigmentaciones'].includes(srv.cat))tipoPrecioHtml='';
       else if(srv.cat==='vascular')tipoPrecioHtml=buildSrvTipoHtml(srv,4);
       else if(srv.cat==='combos')tipoPrecioHtml=buildSrvTipoHtml(srv,6);
       else if(CATALOGO[srv.cat]&&CATALOGO[srv.cat].sesiones_paquete)tipoPrecioHtml=buildSrvTipoHtml(srv,CATALOGO[srv.cat].sesiones_paquete);
