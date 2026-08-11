@@ -2267,8 +2267,8 @@ function renderPreciosCat(){
   if(preciosCatActiva==='depilacion'){
     el.innerHTML=`<div class="card" style="padding:0;overflow:hidden;overflow-x:auto"><table><thead><tr>
       <th>Zona</th><th style="text-align:right">Sesión</th><th style="text-align:right">Sesión 20%dto</th>
-      <th style="text-align:right">Paquete</th><th style="text-align:right">Paquete 30%</th><th style="text-align:right">Paquete 50%</th></tr></thead>
-      <tbody>${PD.map(p=>`<tr><td>${p.zona}</td><td style="text-align:right">${fmt(p.sesion)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d20_sesion)}</td><td style="text-align:right">${fmt(p.paquete)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d30)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d50)}</td></tr>`).join('')}</tbody></table></div>`;
+      <th style="text-align:right">Paquete</th><th style="text-align:right">Paquete 30%</th><th style="text-align:right">Paquete 40%</th><th style="text-align:right">Paquete 50%</th><th style="text-align:right">Paquete 70%</th></tr></thead>
+      <tbody>${PD.map(p=>`<tr><td>${p.zona}</td><td style="text-align:right">${fmt(p.sesion)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d20_sesion)}</td><td style="text-align:right">${fmt(p.paquete)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d30)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d40)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d50)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d70)}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
   const c=CATALOGO[preciosCatActiva];if(!c||!c.zonas){el.innerHTML='';return;}
