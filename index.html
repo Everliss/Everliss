@@ -306,6 +306,9 @@ tr:last-child td{border-bottom:none}
       <option value="byebyeporos">Bye Bye poros</option>
       <option value="danosolar">Daño solar</option>
       <option value="rosacea">Rosácea facial</option>
+      <option value="onicomicosis">Onicomicosis</option>
+      <option value="estrias">Estrías</option>
+      <option value="cicatrices">Cicatrices</option>
       <option value="combos">Combos 50%</option>
       <option value="pigmentaciones">Pigmentaciones</option>
     </select>
@@ -497,11 +500,13 @@ tr:last-child td{border-bottom:none}
     <table>
       <thead><tr>
         <th>Zona</th>
-        <th style="text-align:right">Precio lista / Sesión</th>
-        <th style="text-align:right">40% dto</th>
-        <th style="text-align:right">50% dto</th>
-        <th style="text-align:right">60% dto</th>
-        <th style="text-align:right">70% dto</th>
+        <th style="text-align:right">Sesión</th>
+        <th style="text-align:right">Paquete 6 ses.</th>
+        <th style="text-align:right">Sesión 20%</th>
+        <th style="text-align:right">Paquete 40%</th>
+        <th style="text-align:right">Paquete 50%</th>
+        <th style="text-align:right">Paquete 60%</th>
+        <th style="text-align:right">Paquete 70%</th>
       </tr></thead>
       <tbody id="precios2025-body"></tbody>
     </table>
@@ -914,8 +919,12 @@ const CATALOGO={
     {zona:"Bigote + Axilas + Bikini",sesion:7830,paquete:7830},
     {zona:"Piernas completas + Axilas",sesion:15870,paquete:15870},
     {zona:"Medias piernas + Axilas",sesion:9390,paquete:9390},
-    {zona:"Bigote + Axilas + Bikini + Piernas completas",sesion:20580,paquete:20580}
+    {zona:"Bigote + Axilas + Bikini + Piernas completas",sesion:20580,paquete:20580},
+    {zona:"Axilas + Bikini brasileño",sesion:7170,paquete:7170}
   ]},
+  onicomicosis:{label:"Onicomicosis",zonas:[{zona:"Sesión",sesion:350,paquete:null}]},
+  estrias:{label:"Estrías",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7200},{zona:"Corporal",sesion:1200,paquete:7200}]},
+  cicatrices:{label:"Cicatrices",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7200},{zona:"Corporal",sesion:1200,paquete:7200}]},
   pigmentaciones:{label:"Pigmentaciones",periodo:"1 sesión cada mes (máx. 3 sesiones)",zonas:[{zona:"Facial — 5 disparos",sesion:600,disparos:5},{zona:"Facial — 10 disparos",sesion:1100,disparos:10},{zona:"Facial — 15 disparos",sesion:1600,disparos:15},{zona:"Facial — 20 disparos",sesion:2100,disparos:20}]}
 };
 // PRECIOS DEPILACIÓN CORREGIDOS: sesion = precio con +5%, paquete = lista 6 ses, d20 = sesion con 20% dto, d30/d40/d50/d60/d70 = paquete con descuento
@@ -939,8 +948,12 @@ const CATALOGO_2025={
     {zona:"Bigote + Axilas + Bikini",sesion:7830,paquete:7830},
     {zona:"Piernas completas + Axilas",sesion:15870,paquete:15870},
     {zona:"Medias piernas + Axilas",sesion:9390,paquete:9390},
-    {zona:"Bigote + Axilas + Bikini + Piernas completas",sesion:20580,paquete:20580}
+    {zona:"Bigote + Axilas + Bikini + Piernas completas",sesion:20580,paquete:20580},
+    {zona:"Axilas + Bikini brasileño",sesion:7170,paquete:7170}
   ]},
+  onicomicosis:{label:"Onicomicosis",zonas:[{zona:"Sesión",sesion:350,paquete:null}]},
+  estrias:{label:"Estrías",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7200},{zona:"Corporal",sesion:1200,paquete:7200}]},
+  cicatrices:{label:"Cicatrices",sesiones_paquete:6,periodo:"1 sesión cada 3 semanas",zonas:[{zona:"Facial",sesion:1200,paquete:7200},{zona:"Corporal",sesion:1200,paquete:7200}]},
   pigmentaciones:{label:"Pigmentaciones",periodo:"1 sesión cada mes (máx. 3 sesiones)",zonas:[{zona:"Facial — 5 disparos",sesion:600,disparos:5},{zona:"Facial — 10 disparos",sesion:1100,disparos:10},{zona:"Facial — 15 disparos",sesion:1600,disparos:15},{zona:"Facial — 20 disparos",sesion:2100,disparos:20}]}
 };
 
@@ -1417,7 +1430,7 @@ function renderServiciosCita(){
     let tipoPrecioHtml='';
     if(srv.esNuevo&&srv.zona&&srv.cat){
       if(srv.cat==='depilacion')tipoPrecioHtml=buildSrvDepilHtml(srv);
-      else if(['tricostatis','pigmentaciones'].includes(srv.cat))tipoPrecioHtml='';
+      else if(['tricostatis','onicomicosis','pigmentaciones'].includes(srv.cat))tipoPrecioHtml='';
       else if(srv.cat==='vascular')tipoPrecioHtml=buildSrvTipoHtml(srv,4);
       else if(srv.cat==='combos')tipoPrecioHtml=buildSrvTipoHtml(srv,6);
       else if(CATALOGO[srv.cat]&&CATALOGO[srv.cat].sesiones_paquete)tipoPrecioHtml=buildSrvTipoHtml(srv,CATALOGO[srv.cat].sesiones_paquete);
@@ -1505,6 +1518,7 @@ function onSrvCatChange(id,cat){
   const srv=serviciosCita.find(s=>s.id===id);if(!srv)return;
   srv.cat=cat;srv.zona='';srv.tipo='paquete';srv.precio=0;srv.sesiones=1;srv.descuento=0;
   if(cat==='tricostatis'){srv.zona='Nariz';srv.precio=500;srv.sesiones=1;srv.tipo='sesion';srv.periodo=CATALOGO.tricostatis.periodo;}
+  else if(cat==='onicomicosis'){srv.zona='Sesión';srv.precio=350;srv.sesiones=1;srv.tipo='sesion';}
   // danosolar handled by generic zona selection
   recalcTotalCita();renderServiciosCita();
 }
@@ -1591,12 +1605,16 @@ function calcSrvPrecio(srv){
     const z=CATALOGO.vascular.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     if(srv.tipo==='paquete'&&z.paquete){srv.precio=z.paquete;srv.sesiones=4;}else{srv.precio=z.sesion;srv.sesiones=1;}
     srv.periodo=CATALOGO.vascular.periodo;
+  }else if(srv.cat==='onicomicosis'){
+    srv.precio=350;srv.sesiones=1;srv.tipo='sesion';
   }else if(srv.cat==='combos'){
     const z=CATALOGO.combos.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     srv.precio=z.paquete;srv.sesiones=6;srv.tipo='paquete';srv.periodo=CATALOGO.combos.periodo;
   }else if(srv.cat==='pigmentaciones'){
     const z=CATALOGO.pigmentaciones.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     srv.precio=z.sesion;srv.sesiones=1;srv.periodo=CATALOGO.pigmentaciones.periodo;
+  }else if(srv.cat==='onicomicosis'){
+    srv.precio=350;srv.sesiones=1;srv.tipo='sesion';
   }else if(srv.cat==='combos'){
     const z=CATALOGO.combos.zonas.find(x=>x.zona===srv.zona);if(!z)return;
     srv.precio=z.paquete;srv.sesiones=6;srv.tipo='paquete';srv.periodo=CATALOGO.combos.periodo;
@@ -1713,42 +1731,42 @@ function initReportes(){
   renderReportes();
 }
 const PD_2025=[
-  {zona:"Bozo o bigote",lista:2940,sesion:490,d40:1764,d50:1470,d60:1176,d70:882},
-  {zona:"Nariz",lista:2940,sesion:490,d40:1764,d50:1470,d60:1176,d70:882},
-  {zona:"Mentón",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Orejas",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Pies",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Mejillas",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Manos",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Frente",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Media línea de abdomen",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Pezón",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
-  {zona:"Cóccix",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Nuca",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Cuello",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Patillas",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Quijada",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Axilas",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Bikini",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Bikini brasileño",lista:7680,sesion:1280,d40:4608,d50:3840,d60:3072,d70:2304},
-  {zona:"Busto",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Línea de abdomen",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Entrepierna",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Hombros",lista:5940,sesion:990,d40:3564,d50:2970,d60:2376,d70:1782},
-  {zona:"Barba",lista:8520,sesion:1420,d40:5112,d50:4260,d60:3408,d70:2556},
-  {zona:"Medios brazos",lista:8520,sesion:1420,d40:5112,d50:4260,d60:3408,d70:2556},
-  {zona:"Medias piernas",lista:11940,sesion:1990,d40:7164,d50:5970,d60:4776,d70:3582},
-  {zona:"Abdomen",lista:11940,sesion:1990,d40:7164,d50:5970,d60:4776,d70:3582},
-  {zona:"Glúteos",lista:11940,sesion:1990,d40:7164,d50:5970,d60:4776,d70:3582},
-  {zona:"Tórax o pecho hombre",lista:11940,sesion:1990,d40:7164,d50:5970,d60:4776,d70:3582},
-  {zona:"Cara completa",lista:10680,sesion:1780,d40:6408,d50:5340,d60:4272,d70:3204},
-  {zona:"Muslos",lista:16680,sesion:2780,d40:10008,d50:8340,d60:6672,d70:5004},
-  {zona:"Brazos completos",lista:16680,sesion:2780,d40:10008,d50:8340,d60:6672,d70:5004},
-  {zona:"Espalda",lista:22680,sesion:3780,d40:13608,d50:11340,d60:9072,d70:6804},
-  {zona:"Piernas completas",lista:24300,sesion:4050,d40:14580,d50:12150,d60:9720,d70:7290},
-  {zona:"Bikini hombre",lista:8040,sesion:1340,d40:4824,d50:4020,d60:3216,d70:2412},
-  {zona:"Bikini brasileño hombre",lista:9480,sesion:1580,d40:5688,d50:4740,d60:3792,d70:2844},
-  {zona:"Extensión bikini",lista:3240,sesion:540,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Bozo o bigote",sesion:490,lista:2940,d20_sesion:392,d40:1764,d50:1470,d60:1176,d70:882},
+  {zona:"Nariz",sesion:490,lista:2940,d20_sesion:392,d40:1764,d50:1470,d60:1176,d70:882},
+  {zona:"Mentón",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Orejas",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Pies",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Mejillas",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Manos",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Frente",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Media línea de abdomen",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Pezón",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972},
+  {zona:"Cóccix",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Nuca",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Cuello",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Patillas",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Quijada",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Axilas",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Bikini",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Bikini brasileño",sesion:1280,lista:7680,d20_sesion:1024,d40:4608,d50:3840,d60:3072,d70:2304},
+  {zona:"Busto",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Línea de abdomen",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Entrepierna",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Hombros",sesion:990,lista:5940,d20_sesion:792,d40:3564,d50:2970,d60:2376,d70:1782},
+  {zona:"Barba",sesion:1420,lista:8520,d20_sesion:1136,d40:5112,d50:4260,d60:3408,d70:2556},
+  {zona:"Medios brazos",sesion:1420,lista:8520,d20_sesion:1136,d40:5112,d50:4260,d60:3408,d70:2556},
+  {zona:"Medias piernas",sesion:1990,lista:11940,d20_sesion:1592,d40:7164,d50:5970,d60:4776,d70:3582},
+  {zona:"Abdomen",sesion:1990,lista:11940,d20_sesion:1592,d40:7164,d50:5970,d60:4776,d70:3582},
+  {zona:"Glúteos",sesion:1990,lista:11940,d20_sesion:1592,d40:7164,d50:5970,d60:4776,d70:3582},
+  {zona:"Tórax o pecho hombre",sesion:1990,lista:11940,d20_sesion:1592,d40:7164,d50:5970,d60:4776,d70:3582},
+  {zona:"Cara completa",sesion:1780,lista:10680,d20_sesion:1424,d40:6408,d50:5340,d60:4272,d70:3204},
+  {zona:"Muslos",sesion:2780,lista:16680,d20_sesion:2224,d40:10008,d50:8340,d60:6672,d70:5004},
+  {zona:"Brazos completos",sesion:2780,lista:16680,d20_sesion:2224,d40:10008,d50:8340,d60:6672,d70:5004},
+  {zona:"Espalda",sesion:3780,lista:22680,d20_sesion:3024,d40:13608,d50:11340,d60:9072,d70:6804},
+  {zona:"Piernas completas",sesion:4050,lista:24300,d20_sesion:3240,d40:14580,d50:12150,d60:9720,d70:7290},
+  {zona:"Bikini hombre",sesion:1340,lista:8040,d20_sesion:1072,d40:4824,d50:4020,d60:3216,d70:2412},
+  {zona:"Bikini brasileño hombre",sesion:1580,lista:9480,d20_sesion:1264,d40:5688,d50:4740,d60:3792,d70:2844},
+  {zona:"Extensión bikini",sesion:540,lista:3240,d20_sesion:432,d40:1944,d50:1620,d60:1296,d70:972}
 ];
 
 let precios2025Filtro='';
@@ -1764,7 +1782,9 @@ function renderPrecios2025(){
     const lista=PD_2025.filter(p=>!precios2025Filtro||p.zona.toLowerCase().includes(precios2025Filtro.toLowerCase()));
     el.innerHTML=lista.map(p=>`<tr>
       <td>${p.zona}</td>
+      <td style="text-align:right">${fmt(p.sesion)}</td>
       <td style="text-align:right">${fmt(p.lista)}</td>
+      <td style="text-align:right;color:#854F0B">${fmt(p.d20_sesion)}</td>
       <td style="text-align:right;color:#854F0B">${fmt(p.d40)}</td>
       <td style="text-align:right;color:#854F0B">${fmt(p.d50)}</td>
       <td style="text-align:right;color:#A32D2D">${fmt(p.d60)}</td>
@@ -2158,6 +2178,8 @@ function guardarTrat(){
     else if(genTipo==='paq6'){precio=Math.round(zdano.sesion*6*0.9);sesiones=6;tipo='paquete';}
     else{precio=zdano.sesion;sesiones=1;tipo='sesion';}
     periodo=CATALOGO.danosolar.periodo;
+  }else if(cat==='onicomicosis'){
+    zona='Sesión';precio=350;sesiones=1;tipo='sesion';periodo='';
   }else if(cat==='combos'){
     zona=document.getElementById('nt-zona').value;if(!zona){alert('Selecciona el combo.');return;}
     const zc=CATALOGO.combos.zonas.find(x=>x.zona===zona);
@@ -2267,8 +2289,8 @@ function renderPreciosCat(){
   if(preciosCatActiva==='depilacion'){
     el.innerHTML=`<div class="card" style="padding:0;overflow:hidden;overflow-x:auto"><table><thead><tr>
       <th>Zona</th><th style="text-align:right">Sesión</th><th style="text-align:right">Sesión 20%dto</th>
-      <th style="text-align:right">Paquete</th><th style="text-align:right">Paquete 30%</th><th style="text-align:right">Paquete 40%</th><th style="text-align:right">Paquete 50%</th><th style="text-align:right">Paquete 70%</th></tr></thead>
-      <tbody>${PD.map(p=>`<tr><td>${p.zona}</td><td style="text-align:right">${fmt(p.sesion)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d20_sesion)}</td><td style="text-align:right">${fmt(p.paquete)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d30)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d40)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d50)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d70)}</td></tr>`).join('')}</tbody></table></div>`;
+      <th style="text-align:right">Paquete</th><th style="text-align:right">Paquete 30%</th><th style="text-align:right">Paquete 40%</th><th style="text-align:right">Paquete 50%</th><th style="text-align:right">Paquete 60%</th><th style="text-align:right">Paquete 70%</th></tr></thead>
+      <tbody>${PD.map(p=>`<tr><td>${p.zona}</td><td style="text-align:right">${fmt(p.sesion)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d20_sesion)}</td><td style="text-align:right">${fmt(p.paquete)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d30)}</td><td style="text-align:right;color:#854F0B">${fmt(p.d40)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d50)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d60)}</td><td style="text-align:right;color:#0F6E56">${fmt(p.d70)}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
   const c=CATALOGO[preciosCatActiva];if(!c||!c.zonas){el.innerHTML='';return;}
