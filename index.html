@@ -2623,6 +2623,14 @@ function limpiarFormPaciente(){
   document.getElementById('btn-back-pac').onclick=()=>showTab('pacientes');
 }
 
+
+function eliminarPagoDetalle(pgid){
+  if(!confirm('¿Eliminar este pago? El saldo se reajustará.'))return;
+  const pg=db.pagos.find(x=>x.id===pgid);
+  if(pg){const t=db.tratamientos.find(x=>x.id===pg.tid);if(t)t.pagado=Math.max(0,t.pagado-pg.monto);}
+  db.pagos=db.pagos.filter(x=>x.id!==pgid);
+  saveDB();renderDetalle(selPid);
+}
 </script>
 </body>
 </html>
